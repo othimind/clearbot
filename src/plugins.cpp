@@ -61,8 +61,12 @@ void loadPlugins()
 			luabind::call_function<void>(L, "initPlugin");
 		}
 		catch (luabind::error &e) {
+			std::cout << "erroooooooor" << std::endl;
 			luabind::object error_msg(luabind::from_stack(e.state(), -1));
 			std::cout << error_msg << std::endl;
+		}
+		catch (...) {
+			std::cout << "Unknown exception. Perhaps a plugin is empty?" << std::endl;
 		}
 	}
 	loadConfig();
