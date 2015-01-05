@@ -1,0 +1,4 @@
+clearbot
+libircclient.so
+*.o
+config.yml
