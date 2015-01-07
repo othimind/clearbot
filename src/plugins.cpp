@@ -26,7 +26,6 @@ void callPluginFunction(std::string command, std::string message, std::string ch
 		}
 		}
 }
-
 void loadPlugins()
 {
 	L = luaL_newstate();
@@ -43,6 +42,7 @@ void loadPlugins()
     luabind::module(L) [luabind::def("send",&sendMessage)];
     luabind::module(L) [luabind::def("sendRaw",&sendRaw)];	
     luabind::module(L) [luabind::def("getAPIKey", &getAPIKey)];
+	luabind::module(L) [luabind::def("getNick", &getNick)];
 	registerCoreCommand("help", getHelp);
 	registerCoreCommand("join", joinChannel);
 	registerCoreCommand("forget", forgetChannel);
@@ -61,12 +61,12 @@ void loadPlugins()
 			luabind::call_function<void>(L, "initPlugin");
 		}
 		catch (luabind::error &e) {
-			std::cout << "erroooooooor" << std::endl;
 			luabind::object error_msg(luabind::from_stack(e.state(), -1));
 			std::cout << error_msg << std::endl;
 		}
-		catch (...) {
+		catch (std::exception &e) {
 			std::cout << "Unknown exception. Perhaps a plugin is empty?" << std::endl;
+			std::cout << e.what() << std::endl;
 		}
 	}
 	loadConfig();

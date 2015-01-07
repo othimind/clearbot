@@ -29,6 +29,10 @@ void requestVHost(std::vector<std::string> words, std::string channel, IRCComman
 	client->Send("hostserv", "REQUEST " + words.at(1));
 }
 
+std::string getNick() {
+	return getConfig("nick");
+}
+
 void joinChannel(std::vector<std::string> words, std::string channel, IRCCommandPrefix user, IRCClient* client){
 	time_t rawtime;
 	struct tm *currentTime;

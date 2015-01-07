@@ -17,17 +17,20 @@ std::map<std::string, std::string> apikeys;
 
 
 void delegateSieve(IRCMessage message, IRCClient* client){
-	std::string command = message.parameters.at(1).erase(0,1);
+	std::string command = message.parameters.at(1);
+	if (command == ".reload")
+		return;
 	std::string channel = message.parameters.at(0);
 	std::string nick = message.prefix.nick;
 	std::string prefix = message.prefix.prefix;
 	for (std::list<std::string>::const_iterator iterator = sieveList.begin(), end = sieveList.end(); iterator != end; ++iterator) {
     	char* func = cstrc(*iterator);
-    	std::cout << *iterator << std::endl;
     	try {
     		luabind::call_function<void>(L, func, cstrc(command), cstrc(channel), cstrc(nick), cstrc(prefix));
     	}
     	catch (luabind::error &e) {
+			luabind::object error_msg(luabind::from_stack(e.state(), -1));
+			std::cout << error_msg << std::endl;
     		std::cout << "Lua script error" << std::endl; 
     	}
 	}
@@ -40,7 +43,7 @@ void delegateCommand(IRCMessage message, IRCClient* client){
 	std::string input = lower(words.at(0)); 
 	
 	if (coreCommandList.count(input) == 0)
-		callPluginFunction(input, command.erase(0,words.at(0).size()), message.parameters.at(0), message.prefix.nick, message.prefix.prefix);
+		callPluginFunction(input, command.erase(0,words.at(0).size() + 1), message.parameters.at(0), message.prefix.nick, message.prefix.prefix);
 	else {
 		bool secured = coreCommandList[input].secured;
 		bool proceed = false;

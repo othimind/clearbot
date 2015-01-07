@@ -27,3 +27,4 @@ void doRawCommand(std::vector<std::string>, std::string, IRCCommandPrefix, IRCCl
 void registerNick(std::vector<std::string>, std::string, IRCCommandPrefix, IRCClient*);
 void identifyNick(std::vector<std::string>, std::string, IRCCommandPrefix, IRCClient*);
 void requestVHost(std::vector<std::string>, std::string, IRCCommandPrefix, IRCClient*);
+std::string getNick();
