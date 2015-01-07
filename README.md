@@ -20,6 +20,7 @@ function luaFunctionName(message, channel, nick, prefix)
 	send(channel, message)
 	sendRaw(text)
 	getAPIKey("key")
+	getNick()
 end
 ````
 registerCommand registers a new command, and links it to the appropriate Lua function. The optional parameter 'secured' is a boolean value that sets if this should be 'admin-only'. The bot owner will always be able to run such commands. The function signature of the function registered must be 'message, channel, nick, prefix'. The function should not return anything.
