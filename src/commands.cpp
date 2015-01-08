@@ -4,6 +4,7 @@ using namespace soci;
 
 void reload(std::vector<std::string> words, std::string channel, IRCCommandPrefix user, IRCClient* client) {
 	loadPlugins();
+	client->Send(channel, "Plugins reloaded");
 }
 
 void quitIRC(std::vector<std::string> words, std::string channel, IRCCommandPrefix user, IRCClient* client) {
@@ -76,7 +77,7 @@ void forgetChannel(std::vector<std::string> words, std::string channel, IRCComma
 		client->Send(user.nick,"Channel is not listed as autojoin");
 		return;
 	}
-	if (creator  == user.prefix || user.nick == getConfig("owner"))
+	if (creator  == user.prefix || user.nick == getConfig("owner") || getAdmin(user.nick, channel))
 	{
 		statement st = (sql.prepare << "delete from autojoins where channel = :chan",use(words.at(1)));
 		st.execute(true);

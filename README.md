@@ -29,11 +29,17 @@ registerSieve registers a function that will be run for every line of text the b
 Clearbot has the following dependencies:
 
 lua
+
 yaml-cpp
+
 soci
+
 soci-sqlite3
+
 luabind
+
 IRCClient (modified)
+
 boost
 
 Clearbot Plugins that utilise the database require:

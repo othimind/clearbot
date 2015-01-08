@@ -9,13 +9,15 @@ function seenSieve(message, channel, nick, prefix)
 	if nick == getNick() then	
 		return
 	end
+	dbInit()
 	assert(db:execute("create table if not exists seen(name, time, quote, chan, primary key(name, chan))"))
-	assert(db:execute(string.format("insert or replace into seen(name, time, quote, chan) values('%s','%s','%s','%s')", nick, os.time(), db:escape(message),channel)))
+	assert(db:execute(string.format("insert or replace into seen(name, time, quote, chan) values(lower('%s'),'%s','%s','%s')", nick, os.time(), db:escape(message),channel)))
 end
 
 function seen(message, channel, nick, prefix)
 	if message == "" then
 		send(channel,"seen <nick> -- Tell when a nickname was last in active in irc")
+		return
 	end
 	if string.lower(message:gsub("%s+", "")) == getNick() then
 		send(channel, "You need to get your eyes checked.")
@@ -25,7 +27,8 @@ function seen(message, channel, nick, prefix)
 		send(channel, "Have you looked in a mirror lately?")
 		return
 	end
-	cur = assert(db:execute(string.format("select name, time, quote from seen where name = '%s' and chan = '%s'", db:escape(message), channel)))
+	dbInit()
+	cur = assert(db:execute(string.format("select name, time, quote from seen where name = lower('%s') and chan = '%s'", db:escape(message), channel)))
 	row = cur:fetch({}, "a")
 	
 		if row ~= nil then
@@ -41,4 +44,5 @@ function seen(message, channel, nick, prefix)
 			return
 		end
 	send(channel, response)
+	cur:close()
 end

@@ -11,6 +11,12 @@ function tellSieve(message, channel, nick, prefix)
 		return
 	end
 	assert(db:execute("create table if not exists tell (user_to, user_from, message, chan, time,primary key(user_to, message))"))
+	cur = assert(db:execute(string.format("select * from tell where user_to=lower('%s')",nick)))
+	row = cur:fetch({}, "a")
+	if row ~= nil then
+		send(nick, "You have tells. Use '.tell get' to retrieve them")
+	end
+	cur:close()
 end
 
 function tell(message, channel, nick, prefix)
@@ -27,6 +33,7 @@ function tell(message, channel, nick, prefix)
 				row = cur:fetch(row, "a")
 			end
 			assert(db:execute(string.format("delete from tell where user_to = '%s'",nick)))
+			
 		else
 			send(nick, "No messages sorry")
 		end
@@ -38,5 +45,5 @@ function tell(message, channel, nick, prefix)
 			send(channel, "I'll pass that along.")
 		end
 	end
-	
+	cur:close()
 end
