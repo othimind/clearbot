@@ -17,7 +17,6 @@ function weather(message, channel, nick, prefix)
 		if row ~= nil then
 			while row do
 				message = row.loc
-				units = row.units
 				row = cur:fetch(row, "a")
 			end
 		else
@@ -41,15 +40,8 @@ function weather(message, channel, nick, prefix)
 	elseif n ~= nil then
 		units = "imperial"
 		message = string.gsub(message, "imperial", "")
-	else
-		cur = assert(db:execute(string.format("select units from location where chan = '%s' and nick = '%s'", channel, nick)))
-		row = cur:fetch({}, "a")
-		if row ~= nil then
-			units = row.units
-		else
-			units = "metric"
-		end
-		cur:close()
+	else	
+		units = ""
 	end
 		
 	location = stringx.split(message,",")
@@ -101,8 +93,10 @@ function weather(message, channel, nick, prefix)
 	lon = results["current_observation"]["longitude"]
 	if units == "metric" then
 		response = string.format("%s: %s: %s, %sC (H:%sC L:%sC), Humidity: %s, %skm/h | Tomorrow: H:%sC L:%sC", nick, info["city"], info["weather"], info["t_c"], info["h_c"], info["l_c"], info["humid"], info["wind_m"], info["th_c"], info["tl_c"])
-	else
+	elseif units == "imperial" then
 		response = string.format("%s %s: %s, %sF (H:%sF L:%sF), Humidity: %s, %smph | Tomorrow: H:%sF L:%sF", nick, info["city"], info["weather"], info["t_f"], info["h_f"], info["l_f"], info["humid"], info["wind_i"], info["th_f"], info["tl_f"])
+	else
+		response = string.format("%s %s: %s, %sC/%sF (H:%sC/%sF L:%sC/%sF), Humidity: %s, %skph/%smph | Tomorrow: H:%sC/%sF L:%sC/%sF", nick, info["city"], info["weather"], info["t_c"],info["t_f"], info["h_c"], info["h_f"], info["l_c"], info["l_f"], info["humid"], info["wind_m"], info["wind_i"], info["th_c"], info["th_f"], info["tl_c"], info["tl_f"])
 	end
 	if dontsave == false then
 		res = assert(db:execute(string.format("insert or replace into location(chan, nick, loc, units) values ('%s', '%s', '%s', '%s')", channel, nick, db:escape(location[1]) .. db:escape(location[2]), units)))

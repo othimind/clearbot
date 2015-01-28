@@ -13,9 +13,12 @@ function url_encode(str)
 end
 function getVideoDescription(vid_id)
 	url = string.format("http://gdata.youtube.com/feeds/api/videos/%s?v=2&alt=jsonc",vid_id)
-	body, c, l, h = http.request(query)
+	body, c, l, h = http.request(url)
 	results = json.decode(body)
-	data = results["data"]["items"][1]
+	if results["data"] == nil then
+		return
+	end
+	data = results["data"] --["items"][1]
 	out = string.format("\x02%s\x02", data["title"])
 	if data["duration"] == nil then
 		return out
@@ -47,6 +50,22 @@ function initPlugin()
 	registerCommand("y", "youtube")
 	registerCommand("yt", "youtube")
 	registerCommand("youtube", "youtube")
+	registerSieve("sieveYoutube")
+end
+
+function sieveYoutube(message, channel, nick, prefix)
+	if nick == getNick() then
+		return
+	end
+	a,b = string.match(message, "%?v=(.[0-9a-zA-Z]*)&?")
+	if a ~= nil then
+		send(channel, string.format("%s: %s",nick,getVideoDescription(a)))
+	else
+		 a,b = string.match(message, "[http://]?youtu.be/(.[0-9a-zA-Z]*)")
+		 if a ~= nil then
+			send(channel, string.format("%s: %s",nick,getVideoDescription(a)))
+		end
+	end
 end
 function youtube(message, channel, nick, prefix)
 	url = "http://gdata.youtube.com/feeds/api/videos?v=2&alt=jsonc&max-results=1&q="
@@ -58,5 +77,5 @@ function youtube(message, channel, nick, prefix)
 		return
 	end
 	vid_id = results["data"]["items"][1]["id"]
-	send(channel, string.format("%s: %s",nick,getVideoDescription(vid_id))
+	send(channel, string.format("%s: %s",nick,getVideoDescription(vid_id)))
 end

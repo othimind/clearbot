@@ -10,6 +10,7 @@ function tellSieve(message, channel, nick, prefix)
 	if nick == getNick() then	
 		return
 	end
+	dbInit()
 	assert(db:execute("create table if not exists tell (user_to, user_from, message, chan, time,primary key(user_to, message))"))
 	cur = assert(db:execute(string.format("select * from tell where user_to=lower('%s')",nick)))
 	row = cur:fetch({}, "a")
@@ -20,6 +21,7 @@ function tellSieve(message, channel, nick, prefix)
 end
 
 function tell(message, channel, nick, prefix)
+	dbInit()
 	assert(db:execute("create table if not exists tell (user_to, user_from, message, chan, time,primary key(user_to, message))"))
 	if message == "get" then
 		cur = assert(db:execute(string.format("select user_from, message, time, chan from tell where user_to=lower('%s') order by time",nick)))

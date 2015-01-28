@@ -3,6 +3,7 @@ local json = require 'json'
 
 function initPlugin()
 	registerCommand("google", "google")
+	registerCommand("g", "google")
 	registerCommand("gis", "gis")
 end
 

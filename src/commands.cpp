@@ -222,6 +222,8 @@ void followInvite(IRCMessage message, IRCClient* client){
 void endMOTD(IRCMessage message, IRCClient* client){
 	client->SendIRC("IDENTIFY " + getConfig("password"));
 	client->SendIRC("MODE " + getConfig("nick") + " " + getConfig("modes"));
+	if (getConfig("autojoin") != "yes")
+		return;
 	session sql(sqlite3, "data/cbdata.db");
 	rowset<row> rs = (sql.prepare << "select * from autojoins");
 	for (rowset<row>::const_iterator it = rs.begin(); it != rs.end(); it++)
