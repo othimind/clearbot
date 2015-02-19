@@ -24,15 +24,15 @@ void delegateSieve(IRCMessage message, IRCClient* client){
 	std::string nick = message.prefix.nick;
 	std::string prefix = message.prefix.prefix;
 	for (std::list<std::string>::const_iterator iterator = sieveList.begin(), end = sieveList.end(); iterator != end; ++iterator) {
-    	char* func = cstrc(*iterator);
-    	try {
-    		luabind::call_function<void>(L, func, cstrc(command), cstrc(channel), cstrc(nick), cstrc(prefix));
-    	}
-    	catch (luabind::error &e) {
+		char* func = cstrc(*iterator);
+		try {
+			luabind::call_function<void>(L, func, cstrc(command), cstrc(channel), cstrc(nick), cstrc(prefix));
+		}
+		catch (luabind::error &e) {
 			luabind::object error_msg(luabind::from_stack(e.state(), -1));
 			std::cout << error_msg << std::endl;
-    		std::cout << "Lua script error" << std::endl; 
-    	}
+			std::cout << "Lua script error" << std::endl; 
+		}
 	}
 }
 
@@ -41,11 +41,11 @@ void delegateCommand(IRCMessage message, IRCClient* client){
 	std::string command = message.parameters.at(1).erase(0,1);
 	std::vector<std::string> words = splitString(command, " ");
 	std::string input = lower(words.at(0)); 
-	
+
 	if (coreCommandList.count(input) == 0)
 		callPluginFunction(input, command.erase(0,words.at(0).size() + 1), message.parameters.at(0), message.prefix.nick, message.prefix.prefix);
 	else {
-		bool secured = coreCommandList[input].secured;
+	//	bool secured = coreCommandList[input].secured;
 		bool proceed = false;
 		if (message.prefix.nick == getConfig("owner"))
 			proceed = true;
@@ -55,7 +55,7 @@ void delegateCommand(IRCMessage message, IRCClient* client){
 			someFunc(words, message.parameters.at(0), message.prefix, client);
 		}
 	}
-	
+
 }
 
 void handleInput(IRCMessage message, IRCClient* client){
@@ -65,7 +65,7 @@ void handleInput(IRCMessage message, IRCClient* client){
 }
 
 int main(){
-	
+
 	client.Debug(true);
 	client.HookIRCCommand("376", &endMOTD);
 	client.HookIRCCommand("PRIVMSG", &handleInput);

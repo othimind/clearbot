@@ -7,9 +7,12 @@ function initPlugin()
 end
 
 function tellSieve(message, channel, nick, prefix)
-	if nick == getNick() then	
+	if nick == getNick() or channel == "#bots" then	
 		return
 	end
+--	if channel == "#bots" then
+--		return
+--	end
 	dbInit()
 	assert(db:execute("create table if not exists tell (user_to, user_from, message, chan, time,primary key(user_to, message))"))
 	cur = assert(db:execute(string.format("select * from tell where user_to=lower('%s')",nick)))
@@ -35,7 +38,7 @@ function tell(message, channel, nick, prefix)
 				row = cur:fetch(row, "a")
 			end
 			assert(db:execute(string.format("delete from tell where user_to = '%s'",nick)))
-			
+			cur:close()		
 		else
 			send(nick, "No messages sorry")
 		end
@@ -47,5 +50,5 @@ function tell(message, channel, nick, prefix)
 			send(channel, "I'll pass that along.")
 		end
 	end
-	cur:close()
+--	cur:close()
 end

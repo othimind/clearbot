@@ -27,8 +27,8 @@ void loadConfig(){
 		confFile.close();
 		config = YAML::LoadFile("config.yml");
 	}
-	}
-	
+}
+
 std::string getAPIKey(std::string key)
 {
 	return apikeys[key];

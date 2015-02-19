@@ -1,5 +1,5 @@
-CC=g++
-CFLAGS=-c #-std=c++11
+CC=clang++
+CFLAGS=-Wall -c  #-std=c++11 
 LDFLAGS=-llua -lyaml-cpp  -lsoci_sqlite3 -lsoci_core -lluabind -L./includes -lircclient
 #SOURCES=includes/IRC.cpp src/main.cpp
 SOURCES=$(wildcard src/*.cpp)

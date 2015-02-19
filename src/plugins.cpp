@@ -4,7 +4,7 @@
 void callPluginFunction(std::string command, std::string message, std::string channel, std::string nick, std::string prefix) {
 	if (commandList.count(command) == 0)
 		return;
-		
+
 	char* cmd = cstrc(commandList[command].func);
 	bool secured = commandList[command].secured;
 	bool proceed = true;
@@ -14,17 +14,17 @@ void callPluginFunction(std::string command, std::string message, std::string ch
 		client.Send(channel, "Sorry, you have no permission to run that command");
 		proceed = false;
 	}
-		
+
 	if (proceed){
 		try {
-		luabind::call_function<void>(L, cmd, cstrc(message), cstrc(channel), cstrc(nick), cstrc(prefix));
+			luabind::call_function<void>(L, cmd, cstrc(message), cstrc(channel), cstrc(nick), cstrc(prefix));
 		}
 		catch (luabind::error &e) {
 			luabind::object error_msg(luabind::from_stack(e.state(), -1));
 			std::cout << error_msg << std::endl;
 			std::cout << "Lua script error while running command " << command << std::endl;
 		}
-		}
+	}
 }
 void loadPlugins()
 {
@@ -39,9 +39,9 @@ void loadPlugins()
 	luabind::module(L) [luabind::def("registerCommand",&registerCommand_default)];
 	luabind::module(L) [luabind::def("registerSieve", &registerSieve)];
 	luabind::module(L) [luabind::def("join",&join)];
-    luabind::module(L) [luabind::def("send",&sendMessage)];
-    luabind::module(L) [luabind::def("sendRaw",&sendRaw)];	
-    luabind::module(L) [luabind::def("getAPIKey", &getAPIKey)];
+	luabind::module(L) [luabind::def("send",&sendMessage)];
+	luabind::module(L) [luabind::def("sendRaw",&sendRaw)];	
+	luabind::module(L) [luabind::def("getAPIKey", &getAPIKey)];
 	luabind::module(L) [luabind::def("getNick", &getNick)];
 	registerCoreCommand("help", getHelp);
 	registerCoreCommand("join", joinChannel);

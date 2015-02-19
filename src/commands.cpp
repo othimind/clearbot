@@ -60,7 +60,7 @@ void joinChannel(std::vector<std::string> words, std::string channel, IRCCommand
 		nosave = " [this was not saved]";
 	}
 	client->Join(words.at(1));
-	
+
 	client->Send(user.nick,"Joining channel " + words.at(1) + extra);
 }
 
@@ -70,8 +70,6 @@ void forgetChannel(std::vector<std::string> words, std::string channel, IRCComma
 	std::string creator;
 	sql << "create table if not exists autojoins(channel, user, added datetime, primary key (channel))";
 	sql << "select user from autojoins where channel = :chan",use(words.at(1)),into(creator);
-	std::cout << creator << std::endl;
-	std::cout << user.prefix << std::endl;
 	if (creator == "")
 	{
 		client->Send(user.nick,"Channel is not listed as autojoin");
@@ -95,21 +93,22 @@ void modifyAdmins(std::vector<std::string> words, std::string channel, IRCComman
 	sql << "create table if not exists admins (channel, user, primary key (channel, user))";
 	if (words.size() == 4) {
 		if (words.at(1) == "add") {
-		sql << "select user from admins where channel = :chan and user = :username",use(words.at(2)),use(words.at(3)),into(isAdmin, ind);
-		if (sql.got_data()){
-			switch(ind) {
-				case i_ok:
-					client->Send(user.nick, words.at(3) + " is already an admin for " + words.at(2));
-					return;
-					break;
+			sql << "select user from admins where channel = :chan and user = :username",use(words.at(2)),use(words.at(3)),into(isAdmin, ind);
+			if (sql.got_data()){
+				switch(ind) {
+					case i_ok:
+						client->Send(user.nick, words.at(3) + " is already an admin for " + words.at(2));
+						return;
+					default:
+						return;
+				}
 			}
-		}
-		
-		else	{
-			statement st = (sql.prepare << "insert into admins(channel,user) values(:channel,:user)",use(words.at(2)),use(words.at(3)));
-			st.execute(true);
-			client->Send(user.nick, "User " + words.at(3) + " added as admin");
-		}
+
+			else	{
+				statement st = (sql.prepare << "insert into admins(channel,user) values(:channel,:user)",use(words.at(2)),use(words.at(3)));
+				st.execute(true);
+				client->Send(user.nick, "User " + words.at(3) + " added as admin");
+			}
 		}
 		else if (words.at(1) == "remove") {
 			statement st = (sql.prepare << "delete from admins where channel = :chan and user = :user",use(words.at(2)),use(words.at(3)));
@@ -139,17 +138,17 @@ void modifyAdmins(std::vector<std::string> words, std::string channel, IRCComman
 
 void sendMessage(std::string channel, std::string message)
 {       
-        client.Send(channel, message);
+	client.Send(channel, message);
 }
 
 void join(std::string channel)
 {       
-        client.Join(channel);
+	client.Join(channel);
 }
 
 void sendRaw(std::string raw)
 {
-        client.SendIRC(raw);
+	client.SendIRC(raw);
 }
 
 bool getAdmin(std::string nick, std::string channel){
@@ -163,7 +162,8 @@ bool getAdmin(std::string nick, std::string channel){
 		switch(ind) {
 			case i_ok:
 				return true;
-				break;
+			default:
+				return false;
 		}
 	}
 	else	
@@ -196,23 +196,23 @@ void registerSieve(std::string functionName)
 void getHelp(std::vector<std::string> words, std::string channel, IRCCommandPrefix user, IRCClient* client) {
 	std::string help = "Commands available: ";
 	for (std::map<std::string,securedCommand>::const_iterator it = commandList.begin(); it != commandList.end(); it++)
-		{
-			bool secured = it->second.secured;
-			if (!secured || (secured && getAdmin(user.nick, channel) || user.nick == getConfig("owner"))) {
-				help.append(it->first);
-				help.append(", ");
-			}
+	{
+		bool secured = it->second.secured;
+		if (!secured || ((secured && getAdmin(user.nick, channel)) || user.nick == getConfig("owner"))) {
+			help.append(it->first);
+			help.append(", ");
 		}
-		for (std::map<std::string,securedCoreCommand>::const_iterator it = coreCommandList.begin(); it != coreCommandList.end(); it++)
-		{
-			bool secured = it->second.secured;
-			if (!secured || (user.nick == getConfig("owner"))) {
-				help.append(it->first);
-				help.append(", ");
-			}
+	}
+	for (std::map<std::string,securedCoreCommand>::const_iterator it = coreCommandList.begin(); it != coreCommandList.end(); it++)
+	{
+		bool secured = it->second.secured;
+		if (!secured || (user.nick == getConfig("owner"))) {
+			help.append(it->first);
+			help.append(", ");
 		}
-		help = help.erase(help.size() - 2,help.size());
-		client->Send(user.nick, help);
+	}
+	help = help.erase(help.size() - 2,help.size());
+	client->Send(user.nick, help);
 }
 
 void followInvite(IRCMessage message, IRCClient* client){
@@ -227,9 +227,9 @@ void endMOTD(IRCMessage message, IRCClient* client){
 	session sql(sqlite3, "data/cbdata.db");
 	rowset<row> rs = (sql.prepare << "select * from autojoins");
 	for (rowset<row>::const_iterator it = rs.begin(); it != rs.end(); it++)
-		{
-			row const& row = *it;
-			client->Join(row.get<std::string>(0));
-		}
-	
+	{
+		row const& row = *it;
+		client->Join(row.get<std::string>(0));
+	}
+
 }
